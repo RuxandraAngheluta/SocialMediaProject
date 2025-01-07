@@ -1,0 +1,63 @@
+package socialmedia.post;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class PostService {
+    @Autowired
+    private PostRepositoryInterface postRepositoryInterface;
+    public Post create(Post myPost){
+        if (myPost.getUser() == null || myPost.getUser().getId() == null) {
+            throw new IllegalArgumentException("Post must be associated with a valid user");
+        }
+        return postRepositoryInterface.save(myPost);
+    }
+
+    public List<Post> getAllPost(){
+        return postRepositoryInterface.findAll();
+    }
+
+   public List<Post> getAllPublishedPostsForUser(Integer userId){
+        return postRepositoryInterface.findAllPublishedPostsByUserId(userId);
+   }
+    public Post update(Integer id, String title, String content){
+        if(id==null || title==null || content==null){
+            throw new IllegalArgumentException("Id, title, and content cannot be null");
+        }
+        if (!postRepositoryInterface.existsById(id)) {
+            throw new IllegalArgumentException("Post with ID " + id + " does not exist");
+        }
+        int rowsUpdated = postRepositoryInterface.updatePostById(id, title, content);
+        if (rowsUpdated > 0) {
+            return postRepositoryInterface.findById(id).orElse(null);
+        }
+        throw new RuntimeException("Failed to update the post");
+    }
+
+    public Post delete(Integer id){
+        if(id==null){
+            throw  new IllegalArgumentException("Id cannnot be null");
+        }
+        Post postToDelete = postRepositoryInterface.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Post with ID " + id + " does not exist"));
+
+        postRepositoryInterface.deleteById(id);
+
+        return postToDelete;
+    }
+
+    public Post approvePost(Integer postId){
+        if(postId==null){
+            throw new IllegalArgumentException("Id not can be null");
+        }
+        Post post=postRepositoryInterface.findById(postId).orElseThrow(()->new IllegalArgumentException("Post with ID " + postId +" does not exist"));
+        if(post.getStatus()==Status.PUBLISHED){
+            throw new IllegalArgumentException("Post is already published");
+        }
+        postRepositoryInterface.approvePost(postId);
+        return postRepositoryInterface.findById(postId).orElse(null);
+    }
+}
