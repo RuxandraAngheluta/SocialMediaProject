@@ -11,4 +11,7 @@ public class UserService {
     public User createUser(User newUser){
         return userRepositoryInterface.save(newUser);
     }
+    public User findByEmailAndName(String email, String name) {
+        return userRepositoryInterface.findByEmailAndName(email, name);
+    }
 }

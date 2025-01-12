@@ -7,6 +7,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/comments")
+@CrossOrigin(origins = "http://localhost:8081")
 public class CommentController {
     @Autowired
     private CommentService commentService;
