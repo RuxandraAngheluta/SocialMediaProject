@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import socialmedia.comment.CommentRepositoryInterface;
 import socialmedia.user.User;
 import socialmedia.user.UserRepositoryInterface;
 
@@ -16,6 +17,8 @@ public class PostService implements Serializable {
     private PostRepositoryInterface postRepositoryInterface;
     @Autowired
     private UserRepositoryInterface userRepositoryInterface;
+    @Autowired
+    private CommentRepositoryInterface commentRepositoryInterface;
     public Post create(Post myPost){
         if (myPost.getUser() == null || myPost.getUser().getId() == null) {
             throw new IllegalArgumentException("Post must be associated with a valid user");
@@ -43,12 +46,10 @@ public class PostService implements Serializable {
             throw new IllegalArgumentException("Id, title, and content cannot be null");
         }
 
-        // Verificăm dacă postarea există
         if (!postRepositoryInterface.existsById(id)) {
             throw new IllegalArgumentException("Post with ID " + id + " does not exist");
         }
 
-        // Actualizăm postarea
         int rowsUpdated = postRepositoryInterface.updatePostContentAndTitleById(id, title, content);
 
         if (rowsUpdated > 0) {
@@ -59,18 +60,21 @@ public class PostService implements Serializable {
         throw new RuntimeException("Failed to update the post");
     }
 
-
-    public Post delete(Integer id){
-        if(id==null){
-            throw  new IllegalArgumentException("Id cannnot be null");
+    @Transactional
+    public Post delete(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
         }
+
         Post postToDelete = postRepositoryInterface.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post with ID " + id + " does not exist"));
 
+        commentRepositoryInterface.deleteByPostId(id);
         postRepositoryInterface.deleteById(id);
 
         return postToDelete;
     }
+
 
     @Transactional
     public Post approvePost(Integer postId){

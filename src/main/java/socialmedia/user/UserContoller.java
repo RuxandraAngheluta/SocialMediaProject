@@ -24,14 +24,12 @@ public class UserContoller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and Name are required");
         }
 
-        // Căutăm utilizatorul în baza de date
         User user = userService.findByEmailAndName(loginUser.getEmail(), loginUser.getName());
 
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user. Please check your credentials.");
         }
 
-        // Returnăm utilizatorul valid cu un id valid
         return ResponseEntity.ok(new LoginResponse(user));
     }
 }
