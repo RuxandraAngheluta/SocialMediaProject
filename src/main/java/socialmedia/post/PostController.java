@@ -14,10 +14,13 @@ public class PostController {
     public Post create(@RequestBody Post myPost){
         return postService.create(myPost);
     }
-    @GetMapping("/findAll")
-    public List<Post> get(){return postService.getAllPost();}
+    @GetMapping("/findAll/{userId}")
+    public List<Post> get(@PathVariable("userId") Integer userId){return postService.getAllPost(userId);}
     @PutMapping("/{id}")
-    public Post update(@PathVariable Integer id, @RequestParam String title,@RequestParam String content){return  postService.update(id,title,content);}
+    public Post update(@PathVariable("id") Integer id, @RequestParam String title, @RequestParam String content) {
+        return postService.update(id, title, content);
+    }
+
     @DeleteMapping("delete/{id}")
     public Post delete(@PathVariable Integer id) {
         return postService.delete(id);
@@ -27,7 +30,7 @@ public class PostController {
         return postService.getAllPublishedPostsForUser(userId);
     }
     @PutMapping("/posts/approve/{id}")
-    public Post createApprovePost(@PathVariable Integer postId){
+    public Post createApprovePost(@PathVariable("id") Integer postId){
         return postService.approvePost(postId);
     }
 
